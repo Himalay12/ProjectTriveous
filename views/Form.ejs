@@ -14,6 +14,8 @@
 </head>
 <body>
     <div class="container" style="padding-top: 5em;">
+        <div class="text-center"><h1 style="color: red;">Below Form are just to check working of API with mongodb Database</h1></div>
+        
         <div class="row">
             <!--Bookmark-->
             <div class="card col-sm-6" style="padding: 1rem;">
@@ -31,7 +33,7 @@
                     <div>
                         <input type="text" class="form-control" name="Tag" placeholder="Tag">
                     </div>
-                    <button type="submit" class="btn btn-primary">Bookmark</button>
+                    <button type="submit" class="btn btn-primary">Create Bookmark</button>
                     
                 </form>
             </div>
@@ -49,7 +51,7 @@
                     <div>
                         <input name="Title" type="text" class="form-control" placeholder="Title">
                     </div>
-                    <button type="submit" class="btn btn-primary">Bookmark</button>
+                    <button type="submit" class="btn btn-primary">Create Tag</button>
                     
                 </form>
             </div>
@@ -60,6 +62,36 @@
                 </form>
             </div>
         </div>
+        <div class="row" style="margin-top: 2rem;">
+
+            <div class="card col-sm-6" style="padding: 1rem;">
+                <form action="/addtag" method="POST">
+                    
+                    <div>
+                        <input name="bookmarkId" type="text" class="form-control" placeholder="bookmarkId">
+                    </div>
+
+                    <div>
+                        <input name="tagId" type="text" class="form-control" placeholder="tagId">
+                    </div>
+                    <button type="submit" class="btn btn-primary">addTagtoBookmark</button>
+                    
+                </form>
+            </div>
+
+            <div class="card col-sm-6" style="padding: 1rem;">
+                <form action="/deletetag" method="POST">
+                    
+                    <div>
+                        <input name="bookmarkId" type="text" class="form-control" placeholder="bookmarkId">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">deleteTagfromBookmark</button>
+                    
+                </form>
+            </div>
+        </div>
+        <div style="margin: 5rem"><h2 style="display:inline;">Note: </h2><span>Delete request is also available which can be done using delete request by axios, postman or other.</span></div>
     </div>    
 </body>
 </html>

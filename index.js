@@ -1,4 +1,3 @@
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
@@ -13,7 +12,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-//app.use(express.static("public"));
+
 
 //TODO
 mongoose.connect("mongodb://localhost:27017/TriveousDB", {useNewUrlParser: true, useUnifiedTopology: true});
@@ -70,21 +69,30 @@ app.route("/bookmark")
         });
     })
     .post((req, res) => {
-        const bookmark = new Bookmark({
-            Link: req.body.Link,
-            Title: req.body.Title,
-            TimeCreated: `${date.getTime()}`,
-            TimeUpdated: `${date.getTime()}`,
-            Publisher: req.body.Publisher,
-            Tag: req.body.Tags
-        });
+        
 
-        bookmark.Id = new mongoose.Types.ObjectId();
-
-        bookmark.save(err => {
+        Bookmark.findOne({Link: req.body.Link}, (err, result) => {
             if(err) res.send(err);
-            res.send("Successfully added a new bookmark.");
-        });
+            else if(result) res.send("Already Exist");
+            else {
+                const bookmark = new Bookmark({
+                    Link: req.body.Link,
+                    Title: req.body.Title,
+                    TimeCreated: `${date.getTime()}`,
+                    TimeUpdated: `${date.getTime()}`,
+                    Publisher: req.body.Publisher,
+                    Tag: req.body.Tags
+                });
+        
+                bookmark.Id = new mongoose.Types.ObjectId();
+        
+                bookmark.save(err => {
+                    if(err) res.send(err);
+                    res.send("Successfully added a new bookmark.");
+                });
+            }
+        })
+
     })
     .delete((req, res) => {
         Bookmark.deleteMany({}, err => {
@@ -169,25 +177,29 @@ app.route("/tag/:tagId")
 //    Add a Tag to a Bookmark
 //    Remove a Tag from a Certain Bookmark
 
-app.patch('/addtag/:bookmarkId', (req, res) => {
-    Bookmark.update(
-        {Id: req.params.bookmarkId}, 
-        {tag: req.body.tagId, TimeUpdated: `${date.getTime()}`}, 
-        (err, result) => {
-            if(err) res.send(err);
-            res.send("successful");
-    }); 
-})
+// update using post request and also can be done using patch
+
+app.route('/addtag')
+    .post((req, res) => {
+        Bookmark.updateOne(
+            {Id: req.body.bookmarkId}, 
+            {Tags: req.body.tagId, TimeUpdated: `${date.getTime()}`}, 
+            (err, result) => {
+                if(err) res.send(err);
+                res.send("successful");
+        }); 
+    })
     
-app.patch('/deletetag/:bookmarkId', (req, res) => {
-    Bookmark.update(
-        {Id: req.params.bookmarkId}, 
-        {tag: '', TimeUpdated: `${date.getTime()}`}, 
-        (err, result) => {
-            if(err) res.send(err);
-            res.send("successful");
-    }); 
-})
+app.route('/deletetag')
+    .post((req, res) => {
+        Bookmark.updateOne(
+            {Id: req.body.bookmarkId}, 
+            {Tags: req.body.tagId, TimeUpdated: `${date.getTime()}`}, 
+            (err, result) => {
+                if(err) res.send(err);
+                res.send("successful");
+        }); 
+    })
 
 let PORT = process.env.PORT;
 
@@ -197,26 +209,3 @@ if(PORT == null) PORT = 3000;
 app.listen(PORT, function() {
   console.log(`Server started on port ${PORT}`);
 });
-
-
-
-/* 
-    .put((req, res) => {
-        Article.update(
-            {title: req.params.articleTitle}, 
-            {title: req.body.title, content: req.body.content}, 
-            {overwrite: true}, 
-            (err, result) => {
-                if(err) res.send(err);
-                res.send("successful");
-        });
-    })
-    .patch((req, res) => {
-        Article.update(
-            {title: req.params.articleTitle}, 
-            {$set: req.body}, 
-            (err, result) => {
-                if(err) res.send(err);
-                res.send("successful");
-        });
-    }) */

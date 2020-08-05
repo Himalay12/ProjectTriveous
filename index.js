@@ -2,10 +2,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
+const ejs = require('ejs');
+
+let date = new Date(); 
 
 const app = express();
 
-//app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -26,7 +29,7 @@ mongoose.connect("mongodb://localhost:27017/TriveousDB", {useNewUrlParser: true,
 //BOOKMARK
 
 const bookmarkSchema = new mongoose.Schema({
-    Id: String,
+    Id: mongoose.ObjectId,
     Link: String,
     Title: String,
     TimeCreated: String,
@@ -41,7 +44,7 @@ const Bookmark = mongoose.model("bookmark", bookmarkSchema);
 //TAG
 
 const tagSchema = new mongoose.Schema({
-    Id: String,
+    Id: mongoose.ObjectId,
     Title: String,
     TimeCreated: String,
     TimeUpdated: String
@@ -55,6 +58,10 @@ const Tag = mongoose.model("tag", tagSchema);
 //      Delete a Bookmark
 
 
+app.get('/', (req, res) => {
+    res.render('Form');
+})
+
 app.route("/bookmark")
     .get((req, res) => {
         Bookmark.find({}, (err, results) => {
@@ -63,8 +70,17 @@ app.route("/bookmark")
         });
     })
     .post((req, res) => {
-        const bookmark = new Bookmark(req.body);
-        
+        const bookmark = new Bookmark({
+            Link: req.body.Link,
+            Title: req.body.Title,
+            TimeCreated: `${date.getTime()}`,
+            TimeUpdated: `${date.getTime()}`,
+            Publisher: req.body.Publisher,
+            Tag: req.body.Tags
+        });
+
+        bookmark.Id = new mongoose.Types.ObjectId();
+
         bookmark.save(err => {
             if(err) res.send(err);
             res.send("Successfully added a new bookmark.");
@@ -82,7 +98,7 @@ app.route("/bookmark")
 
 app.route("/bookmark/:bookmarkId")
     .get((req, res) => {
-        Article.findOne({title: req.params.bookmarkId}, (err, result) => {
+        Bookmark.findOne({title: req.params.bookmarkId}, (err, result) => {
             if(err) res.send;
             else if(result) res.send(result);
             else res.send("Not Found");
@@ -110,8 +126,14 @@ app.route("/tag")
         });
     })
     .post((req, res) => {
-        const tag = new Tag(req.body);
+        const tag = new Tag({
+            Title: req.body.Title,
+            TimeCreated: `${date.getTime()}`,
+            TimeUpdated: `${date.getTime()}`
+        });
         
+        tag.Id = new mongoose.Types.ObjectId();
+
         tag.save(err => {
             if(err) res.send(err);
             res.send("Successfully added a new bookmark.");
@@ -150,7 +172,7 @@ app.route("/tag/:tagId")
 app.patch('/addtag/:bookmarkId', (req, res) => {
     Bookmark.update(
         {Id: req.params.bookmarkId}, 
-        {tag: req.body.tagId}, 
+        {tag: req.body.tagId, TimeUpdated: `${date.getTime()}`}, 
         (err, result) => {
             if(err) res.send(err);
             res.send("successful");
@@ -160,7 +182,7 @@ app.patch('/addtag/:bookmarkId', (req, res) => {
 app.patch('/deletetag/:bookmarkId', (req, res) => {
     Bookmark.update(
         {Id: req.params.bookmarkId}, 
-        {tag: ''}, 
+        {tag: '', TimeUpdated: `${date.getTime()}`}, 
         (err, result) => {
             if(err) res.send(err);
             res.send("successful");
@@ -169,7 +191,7 @@ app.patch('/deletetag/:bookmarkId', (req, res) => {
 
 let PORT = process.env.PORT;
 
-if(PORT) PORT = 3000;
+if(PORT == null) PORT = 3000;
 
 
 app.listen(PORT, function() {

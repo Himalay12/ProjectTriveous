@@ -100,8 +100,6 @@ app.route("/bookmark/:bookmarkId")
 //2. Tag
 //    Create a Tag
 //    Delete a Tag
-//    Add a Tag to a Bookmark
-//    Remove a Tag from a Certain Bookmark
 
 
 app.route("/tag")
@@ -146,7 +144,28 @@ app.route("/tag/:tagId")
             })
     });
 
+//    Add a Tag to a Bookmark
+//    Remove a Tag from a Certain Bookmark
 
+app.patch('/addtag/:bookmarkId', (req, res) => {
+    Bookmark.update(
+        {Id: req.params.bookmarkId}, 
+        {tag: req.body.tagId}, 
+        (err, result) => {
+            if(err) res.send(err);
+            res.send("successful");
+    }); 
+})
+    
+app.patch('/deletetag/:bookmarkId', (req, res) => {
+    Bookmark.update(
+        {Id: req.params.bookmarkId}, 
+        {tag: ''}, 
+        (err, result) => {
+            if(err) res.send(err);
+            res.send("successful");
+    }); 
+})
 
 let PORT = process.env.PORT;
 
